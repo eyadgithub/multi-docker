@@ -1,0 +1,29 @@
+sudo: required
+services:
+    - docker
+
+before_install:
+    - docker build -t eyadelhouf/react-test -f ./client/Dockerfile.dev ./client
+
+script:
+    - docker run -e CI=true eyadelhouf/react-test npm test
+
+after_success:
+    - docker build -t eyadelhouf/multi-client ./client
+    - docker build -t eyadelhouf/multi-nginx ./nginx
+    - docker build -t eyadelhouf/multi-server ./server
+    - docker build -t eyadelhouf/multi-worker ./worker
+
+    # Log in to docker CLI
+    - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
+    # push to docker hub
+    - docker push eyadelhouf/multi-client
+    - docker push eyadelhouf/multi-nginx
+    - docker push eyadelhouf/multi-server
+    - docker push eyadelhouf/multi-worker
+    
+
+
+
+    
+    
